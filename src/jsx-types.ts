@@ -7,7 +7,8 @@ import { Fragment } from "./types.ts";
 import type { ComponentType, Key, VNode } from "./types.ts";
 
 /**
- * Primitive values that can be rendered directly in JSX.
+ * Primitive values that can be rendered as JSX children.
+ * @remarks `boolean`, `bigint`, `null`, and `undefined` are filtered during rendering.
  */
 export type JsxPrimitive = string | number | bigint | boolean | null | undefined;
 
@@ -20,17 +21,19 @@ export type JsxComponent<
 > = ComponentType<Props>;
 
 /**
- * Valid JSX element types: HTML tags, Fragment, or component functions.
+ * Valid JSX element types: HTML/SVG tag names, the Fragment symbol, or component functions.
  */
 export type JsxTag = string | typeof Fragment | JsxComponent;
 
 /**
  * Optional key type for JSX elements.
+ * @remarks `null` indicates no explicit key was provided.
  */
 export type JsxKey = Key | null;
 
 /**
  * Types that can be rendered as JSX children.
+ * @remarks Includes primitives, VNodes, and nested arrays of renderables.
  */
 export type JsxRenderable =
   | JsxPrimitive
@@ -39,6 +42,8 @@ export type JsxRenderable =
 
 /**
  * Props object for intrinsic JSX elements.
+ * @remarks The optional `children` prop represents nested JSX content.
+ * Additional properties are spread from element attributes.
  */
 export interface JsxProps {
   readonly children?: JsxRenderable;
@@ -46,6 +51,7 @@ export interface JsxProps {
 }
 
 /**
- * Critical: JSX expressions must have the same type your runtime returns.
+ * The return type of JSX expressions.
+ * @remarks Must match what your runtime's jsx/jsxs/jsxDEV functions return.
  */
 export type JsxElement = VNode;

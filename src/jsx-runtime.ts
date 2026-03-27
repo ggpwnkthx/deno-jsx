@@ -26,18 +26,37 @@ export type {
  */
 export { Fragment };
 
+/**
+ * JSX namespace for type checking JSX expressions.
+ * @remarks This namespace is automatically injected by the JSX transformer.
+ * Extend `IntrinsicElements` to add custom element types.
+ */
 // deno-lint-ignore no-namespace
 export namespace JSX {
+  /**
+   * The return type of JSX expressions.
+   */
   export type Element = VNode;
 
+  /**
+   * Marks the children prop type for intrinsic elements.
+   */
   export interface ElementChildrenAttribute {
     children: unknown;
   }
 
+  /**
+   * Attributes common to all intrinsic elements.
+   */
   export interface IntrinsicAttributes {
     key?: JsxKey;
   }
 
+  /**
+   * Props for built-in HTML/SVG elements mapped by tag name.
+   * @remarks Includes all standard HTML elements and SVG elements.
+   * Use declaration merging to add custom elements or override defaults.
+   */
   export type IntrinsicElements =
     & {
       [K in keyof HTMLElementTagNameMap]?: JsxProps;
@@ -49,12 +68,18 @@ export namespace JSX {
       };
     };
 
+  /**
+   * Valid element types in JSX: tag names, Fragment, or component functions.
+   */
   export type ElementType =
     | keyof IntrinsicElements
     | typeof Fragment
     // deno-lint-ignore no-explicit-any -- JSX type system requires any here
     | ((props: any) => Element | null);
 
+  /**
+   * Types allowed as JSX children.
+   */
   export type Child = JsxRenderable;
 }
 
