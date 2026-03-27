@@ -312,7 +312,7 @@ export function normalizeChildren(children: readonly unknown[]): VNode[] {
 }
 
 /**
- * Creates a normalized element vnode from JSX input.
+ * Creates a normalized vnode from JSX input (element, fragment, or component).
  * @template TProps - The props type.
  * @param type - HTML tag name, Component function, or Fragment.
  * @param props - Props object (null for no props).
