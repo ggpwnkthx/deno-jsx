@@ -2,7 +2,7 @@
 
 [![Deno v2.7+](https://img.shields.io/badge/deno-2.7%2B-blue.svg)](https://deno.land/)
 [![JSR](https://img.shields.io/badge/jsr-@ggpwnkthx%2Fjsx-blue.svg)](https://jsr.io/@ggpwnkthx/jsx)
-[![CI](https://github.com/ggpwnkthx/deno-jsx/workflows/ci/badge.svg)](https://github.com/ggpwnkthx/deno-jsx)
+[![CI](https://github.com/ggpwnkthx/deno-jsx/workflows/CI/badge.svg)](https://github.com/ggpwnkthx/deno-jsx)
 
 A JSX runtime library for Deno v2.7+ providing `jsx`, `jsxs`, `jsxDEV` functions and
 Fragment support. Creates normalized Virtual Node (VNode) representations for any
@@ -11,7 +11,7 @@ rendering engine.
 ## Installation
 
 ```typescript
-import { Fragment, jsx, jsxs } from "jsr:@ggpwnkthx/jsx@0.1.2";
+import { Fragment, jsx, jsxs } from "jsr:@ggpwnkthx/jsx@0.1.4";
 ```
 
 ## Usage
@@ -32,7 +32,7 @@ Configure your `deno.jsonc`:
 Then write JSX:
 
 ```tsx
-import { Fragment, jsx } from "jsr:@ggpwnkthx/jsx@0.1.2";
+import { Fragment, jsx } from "jsr:@ggpwnkthx/jsx@0.1.4";
 
 function Greeting({ name }: { name: string }) {
   return <div>Hello, {name}!</div>;

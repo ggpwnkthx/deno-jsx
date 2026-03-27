@@ -13,6 +13,10 @@ export interface Fragment {
   readonly $$typeof: typeof FRAGMENT_SYMBOL;
 }
 
+/**
+ * Fragment type marker and factory function for grouping children.
+ * Used as a JSX tag to group multiple elements without adding DOM nodes.
+ */
 export const Fragment: Fragment = ((
   _props: { children?: unknown },
 ): unknown => {
