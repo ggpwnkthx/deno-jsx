@@ -9,13 +9,15 @@
  * @module
  */
 
-import { createFragment, Fragment, jsx } from "@ggpwnkthx/jsx";
+import { createFragment, Fragment } from "@ggpwnkthx/jsx";
 import { print } from "./shared.ts";
 
 function KeyedFragmentDemo() {
   return (
     <div>
-      {jsx(Fragment, { children: ["Keyed First", "Keyed Second"] }, "my-key")}
+      <Fragment key="my-key">
+        Keyed First Keyed Second
+      </Fragment>
     </div>
   );
 }

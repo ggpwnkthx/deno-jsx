@@ -7,15 +7,21 @@ import { createJSXVNode } from "./normalize.ts";
 import type { ComponentType, Key, VNode } from "./types.ts";
 import { Fragment } from "./types.ts";
 
-import type { JsxElement, JsxKey, JsxProps, JsxRenderable } from "./jsx-types.ts";
+import type { JsxKey, JsxProps, JsxRenderable } from "./jsx-types.ts";
 
-export type { JsxElement, JsxKey, JsxProps, JsxRenderable } from "./jsx-types.ts";
+export type {
+  JsxElement,
+  JsxKey,
+  JsxProps,
+  JsxRenderable,
+  JsxTag,
+} from "./jsx-types.ts";
 
 export { Fragment };
 
 // deno-lint-ignore no-namespace
 export namespace JSX {
-  export interface Element extends JsxElement {}
+  export type Element = VNode;
 
   export interface ElementChildrenAttribute {
     children: unknown;
@@ -25,9 +31,22 @@ export namespace JSX {
     key?: JsxKey;
   }
 
-  export interface IntrinsicElements {
-    [name: string]: JsxProps;
-  }
+  export type IntrinsicElements =
+    & {
+      [K in keyof HTMLElementTagNameMap]?: JsxProps;
+    }
+    & {
+      Fragment: {
+        key?: string | number;
+        children?: unknown;
+      };
+    };
+
+  export type ElementType =
+    | keyof IntrinsicElements
+    | typeof Fragment
+    // deno-lint-ignore no-explicit-any -- JSX type system requires any here
+    | ((props: any) => Element | null);
 
   export type Child = JsxRenderable;
 }

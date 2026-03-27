@@ -8,7 +8,6 @@
  * @module
  */
 
-import { jsx } from "@ggpwnkthx/jsx";
 import { print } from "./shared.ts";
 
 function Avatar({ src, alt }: { src: string; alt: string }) {
@@ -49,9 +48,9 @@ function TeamSection({ members }: { members: Member[] }) {
   return (
     <section className="team">
       <h2>Our Team</h2>
-      {members.map((m) =>
-        jsx(UserCard, { name: m.name, role: m.role, avatar: m.avatar }, m.name)
-      )}
+      {members.map((m) => (
+        <UserCard key={m.name} name={m.name} role={m.role} avatar={m.avatar} />
+      ))}
       <Badge>3 members</Badge>
     </section>
   );

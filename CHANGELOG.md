@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2026-03-27
+
+### Fixed
+
+- Fixed `IntrinsicElements` to use `keyof HTMLElementTagNameMap` instead of generic string index to prevent custom components from being incorrectly typed as intrinsic elements
+- Made `Fragment` a callable interface with `$$typeof` property to satisfy TypeScript's JSX element type requirements
+- Updated `ElementType` return type to include `null` to support components returning `null`
+- Removed non-existent `benchmarks` directory from `deno.jsonc` check and lint tasks
+
 ## [0.1.2] - 2026-03-27
 
 ### Added

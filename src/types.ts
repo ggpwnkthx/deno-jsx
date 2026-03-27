@@ -6,7 +6,26 @@
 /**
  * Symbol used to identify Fragment nodes in the virtual DOM.
  */
-export const Fragment = Symbol.for("@ggpwnkthx/jsx.fragment");
+export const FRAGMENT_SYMBOL = Symbol.for("@ggpwnkthx/jsx.fragment");
+
+export interface Fragment {
+  (props: { children?: unknown }): unknown;
+  readonly $$typeof: typeof FRAGMENT_SYMBOL;
+}
+
+export const Fragment: Fragment = ((
+  _props: { children?: unknown },
+): unknown => {
+  throw new Error(
+    "Fragment is not meant to be called at runtime. It is only a type marker.",
+  );
+}) as Fragment;
+
+Object.defineProperty(Fragment, "$$typeof", {
+  value: FRAGMENT_SYMBOL,
+  writable: false,
+  configurable: false,
+});
 
 /**
  * Valid types for vnode keys.

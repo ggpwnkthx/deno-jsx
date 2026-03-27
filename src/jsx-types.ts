@@ -3,20 +3,22 @@
  * @module
  */
 
+import { Fragment } from "./types.ts";
+import type { ComponentType, Key, VNode } from "./types.ts";
+
 export type JsxPrimitive = string | number | bigint | boolean | null | undefined;
 
-export interface JsxComponent<
+export type JsxComponent<
   Props extends Record<string, unknown> = Record<string, unknown>,
-> {
-  (props: Props): JsxRenderable;
-}
+> = ComponentType<Props>;
 
-export type JsxTag = string | symbol | JsxComponent;
-export type JsxKey = string | number | null;
+export type JsxTag = string | typeof Fragment | JsxComponent;
+
+export type JsxKey = Key | null;
 
 export type JsxRenderable =
   | JsxPrimitive
-  | JsxElement
+  | VNode
   | readonly JsxRenderable[];
 
 export interface JsxProps {
@@ -24,8 +26,7 @@ export interface JsxProps {
   readonly [key: string]: unknown;
 }
 
-export interface JsxElement {
-  readonly type: JsxTag;
-  readonly props: JsxProps;
-  readonly key: JsxKey;
-}
+/**
+ * Critical: JSX expressions must have the same type your runtime returns.
+ */
+export type JsxElement = VNode;

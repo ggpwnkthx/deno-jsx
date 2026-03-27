@@ -11,7 +11,7 @@ rendering engine.
 ## Installation
 
 ```typescript
-import { Fragment, jsx, jsxs } from "jsr:@ggpwnkthx/jsx@0.1.0";
+import { Fragment, jsx, jsxs } from "jsr:@ggpwnkthx/jsx@0.1.2";
 ```
 
 ## Usage
@@ -32,7 +32,7 @@ Configure your `deno.jsonc`:
 Then write JSX:
 
 ```tsx
-import { Fragment, jsx } from "jsr:@ggpwnkthx/jsx@0.1.0";
+import { Fragment, jsx } from "jsr:@ggpwnkthx/jsx@0.1.2";
 
 function Greeting({ name }: { name: string }) {
   return <div>Hello, {name}!</div>;
@@ -56,7 +56,7 @@ const list = (
 | Function                                                   | Description                                                    |
 | ---------------------------------------------------------- | -------------------------------------------------------------- |
 | `jsx(type, props, key?)`                                   | Creates a VNode for an element, Fragment, or calls a component |
-| `jsxs(type, props, key?)`                                  | Alias for `jsx` (used for static children optimization)        |
+| `jsxs(type, props, key?)`                                  | Static children optimization (alias for `jsx`)                 |
 | `jsxDEV(type, props, key, isStaticChildren, source, self)` | Development mode with source location tracking                 |
 | `createFragment(children?)`                                | Helper to create a Fragment VNode with optional children       |
 
@@ -101,3 +101,10 @@ The runtime produces four kinds of VNodes:
 - **Fragment flattening** - Keyless fragments are flattened into parent children
 - **Child normalization** - `null`, `undefined`, and `boolean` are filtered; strings/numbers become text VNodes
 - **Class component rejection** - Throws `TypeError("Class components are not supported")`
+
+## Resources
+
+- [Examples](./examples/) - Usage examples
+- [CHANGELOG](./CHANGELOG.md) - Version history
+- [CONTRIBUTING](./CONTRIBUTING.md) - Contribution guidelines
+- [LICENSE](./LICENSE.md) - MIT License
