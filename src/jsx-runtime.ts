@@ -9,6 +9,9 @@ import { Fragment } from "./types.ts";
 
 import type { JsxKey, JsxProps, JsxRenderable } from "./jsx-types.ts";
 
+/**
+ * @internal
+ */
 export type {
   JsxElement,
   JsxKey,
@@ -17,6 +20,10 @@ export type {
   JsxTag,
 } from "./jsx-types.ts";
 
+/**
+ * Fragment type marker and factory.
+ * @internal
+ */
 export { Fragment };
 
 // deno-lint-ignore no-namespace

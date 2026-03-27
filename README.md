@@ -11,7 +11,7 @@ rendering engine.
 ## Installation
 
 ```typescript
-import { Fragment, jsx, jsxs } from "jsr:@ggpwnkthx/jsx@0.1.4";
+import { Fragment, jsx, jsxs } from "jsr:@ggpwnkthx/jsx@0.1.5";
 ```
 
 ## Usage
@@ -32,7 +32,7 @@ Configure your `deno.jsonc`:
 Then write JSX:
 
 ```tsx
-import { Fragment, jsx } from "jsr:@ggpwnkthx/jsx@0.1.4";
+import { Fragment, jsx } from "jsr:@ggpwnkthx/jsx@0.1.5";
 
 function Greeting({ name }: { name: string }) {
   return <div>Hello, {name}!</div>;
