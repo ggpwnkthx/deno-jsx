@@ -7,8 +7,31 @@ import { createJSXVNode } from "./normalize.ts";
 import type { ComponentType, JsxDevSource, Key, VNode } from "./types.ts";
 import { Fragment } from "./types.ts";
 
+import type { JsxElement, JsxKey, JsxProps, JsxRenderable } from "./jsx-types.ts";
+
 export { Fragment };
 export type { JsxDevSource };
+
+export type { JsxElement, JsxKey, JsxProps, JsxRenderable } from "./jsx-types.ts";
+
+// deno-lint-ignore no-namespace
+export namespace JSX {
+  export interface Element extends JsxElement {}
+
+  export interface ElementChildrenAttribute {
+    children: unknown;
+  }
+
+  export interface IntrinsicAttributes {
+    key?: JsxKey;
+  }
+
+  export interface IntrinsicElements {
+    [name: string]: JsxProps;
+  }
+
+  export type Child = JsxRenderable;
+}
 
 /**
  * Creates a virtual node for development JSX with source tracking.

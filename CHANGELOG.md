@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Replaced `declare global { namespace JSX { ... } }` with `export namespace JSX { ... }` in `jsx-runtime.ts` and `jsx-dev-runtime.ts` for JSR compliance
+
+### Added
+
+- Added `src/jsx-types.ts` with JSX types for automatic runtime compatibility (`JsxPrimitive`, `JsxComponent`, `JsxTag`, `JsxKey`, `JsxRenderable`, `JsxProps`, `JsxElement`)
+
 ## [0.1.2] - 2026-03-27
 
 ### Changed
