@@ -44,6 +44,11 @@ export {
 import { FragmentVNode, VNode } from "./types.ts";
 import { createFragmentVNode } from "./vnode.ts";
 
+/**
+ * Creates a Fragment vnode with the given children.
+ * @param children - Child virtual nodes.
+ * @returns A new FragmentVNode.
+ */
 export function createFragment(children: readonly VNode[] = []): FragmentVNode {
   return createFragmentVNode(null, children);
 }

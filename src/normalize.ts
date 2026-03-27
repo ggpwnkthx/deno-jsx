@@ -207,6 +207,11 @@ function splitJsxProps(props: Record<string, unknown>): {
   };
 }
 
+/**
+ * Checks if a value is a valid virtual node.
+ * @param value - The value to check.
+ * @returns True if the value is a VNode.
+ */
 export function isVNode(value: unknown): value is VNode {
   if (!isRecord(value)) {
     return false;
@@ -247,6 +252,11 @@ export function isVNode(value: unknown): value is VNode {
   }
 }
 
+/**
+ * Checks if a value is a function component (not a class constructor).
+ * @param value - The value to check.
+ * @returns True if the value is a function component.
+ */
 export function isComponentType(
   value: unknown,
 ): value is (...args: readonly unknown[]) => unknown {
@@ -258,10 +268,20 @@ export function isComponentType(
   return !source.startsWith(CLASS_PREFIX);
 }
 
+/**
+ * Checks if a value is the Fragment symbol.
+ * @param value - The value to check.
+ * @returns True if the value is the Fragment symbol.
+ */
 export function isFragmentType(value: unknown): value is typeof Fragment {
   return value === Fragment;
 }
 
+/**
+ * Normalizes a single child value into a VNode or null.
+ * @param value - The child value to normalize.
+ * @returns A VNode, null if the value is null/undefined/boolean, or a fragment containing multiple nodes.
+ */
 export function normalizeChild(value: unknown): VNode | null {
   const normalized = normalizeChildren([value]);
 
@@ -276,6 +296,11 @@ export function normalizeChild(value: unknown): VNode | null {
   return createFragmentVNode(null, normalized);
 }
 
+/**
+ * Normalizes an array of child values into VNodes.
+ * @param children - The child values to normalize.
+ * @returns An array of VNodes with null/undefined/booleans filtered out.
+ */
 export function normalizeChildren(children: readonly unknown[]): VNode[] {
   const normalized: VNode[] = [];
 
@@ -286,6 +311,14 @@ export function normalizeChildren(children: readonly unknown[]): VNode[] {
   return normalized;
 }
 
+/**
+ * Creates a normalized element vnode from JSX input.
+ * @template TProps - The props type.
+ * @param type - HTML tag name, Component function, or Fragment.
+ * @param props - Props object (null for no props).
+ * @param key - Optional vnode key.
+ * @returns A normalized VNode.
+ */
 export function createJSXVNode<TProps extends Record<string, unknown>>(
   type: string | ComponentType<TProps> | typeof Fragment,
   props: (TProps & { children?: unknown }) | null,
