@@ -1,6 +1,7 @@
 import type { Plugin } from "@opencode-ai/plugin";
 
-const MAX_CONTEXT_FILES = 5;
+const MAX_CONTEXT_FILES = 8;
+const MAX_RECENT_FILES = 25;
 
 type LogLevel = "debug" | "info" | "warn" | "error";
 
@@ -9,7 +10,7 @@ export const CodeGradePromptPlugin: Plugin = async (
 ) => {
   let changed = false;
   let running = false;
-  let lastEditedPath: string | null = null;
+  let recentlyEditedPaths: string[] = [];
 
   const log = async (
     level: LogLevel,
@@ -37,17 +38,13 @@ export const CodeGradePromptPlugin: Plugin = async (
         return;
       }
 
-      const primaryFile =
-        lastEditedPath && changedFiles.includes(lastEditedPath)
-          ? lastEditedPath
-          : changedFiles[0];
-
-      const contextFiles = prioritizeFiles(primaryFile, changedFiles).slice(
-        0,
+      const reviewFiles = selectProjectContextFiles(
+        changedFiles,
+        recentlyEditedPaths,
         MAX_CONTEXT_FILES,
       );
 
-      const prompt = buildReviewPrompt(primaryFile, contextFiles);
+      const prompt = buildProjectReviewPrompt(changedFiles, reviewFiles);
 
       await client.tui.appendPrompt({
         body: {
@@ -57,13 +54,14 @@ export const CodeGradePromptPlugin: Plugin = async (
 
       await client.tui.submitPrompt();
 
-      await log("info", "Submitted code grade review prompt", {
-        primaryFile,
-        contextFiles,
+      await log("info", "Submitted project-level code grade review prompt", {
+        changedFilesCount: changedFiles.length,
+        reviewFiles,
+        omittedFiles: changedFiles.filter((file) => !reviewFiles.includes(file)),
       });
 
       changed = false;
-      lastEditedPath = null;
+      recentlyEditedPaths = [];
     } catch (error) {
       await log("error", "Failed to submit code grade prompt", {
         error: error instanceof Error ? error.message : String(error),
@@ -77,7 +75,15 @@ export const CodeGradePromptPlugin: Plugin = async (
     event: async ({ event }) => {
       if (event.type === "file.edited") {
         changed = true;
-        lastEditedPath = extractEditedPath(event);
+
+        const editedPath = extractEditedPath(event);
+        if (editedPath && isReviewableFile(editedPath)) {
+          recentlyEditedPaths = pushRecentPath(
+            recentlyEditedPaths,
+            editedPath,
+            MAX_RECENT_FILES,
+          );
+        }
       }
 
       if (event.type === "session.idle" && changed) {
@@ -97,6 +103,17 @@ function extractEditedPath(event: unknown): string | null {
   if (!properties?.file) return null;
 
   return properties.file;
+}
+
+function pushRecentPath(
+  paths: string[],
+  path: string,
+  maxItems: number,
+): string[] {
+  const normalized = path.replaceAll("\\", "/");
+  const next = paths.filter((item) => item !== normalized);
+  next.push(normalized);
+  return next.slice(-maxItems);
 }
 
 async function getChangedFiles(
@@ -141,7 +158,7 @@ async function getChangedFiles(
       const file = line.trim();
       if (!file) continue;
       if (isReviewableFile(file)) {
-        files.add(file);
+        files.add(file.replaceAll("\\", "/"));
       }
     }
   }
@@ -149,10 +166,90 @@ async function getChangedFiles(
   return [...files].sort();
 }
 
-function prioritizeFiles(primaryFile: string, files: string[]): string[] {
-  const unique = [...new Set(files)];
-  const withoutPrimary = unique.filter((file) => file !== primaryFile);
-  return [primaryFile, ...withoutPrimary];
+function selectProjectContextFiles(
+  files: string[],
+  recentlyEditedPaths: string[],
+  maxFiles: number,
+): string[] {
+  const unique = [...new Set(files.map((file) => file.replaceAll("\\", "/")))];
+  if (unique.length <= maxFiles) return unique;
+
+  const scored = unique
+    .map((file) => ({
+      file,
+      bucket: getDirectoryBucket(file),
+      score: scoreProjectFile(file, recentlyEditedPaths),
+    }))
+    .sort((a, b) => b.score - a.score || a.file.localeCompare(b.file));
+
+  const selected: string[] = [];
+  const seenBuckets = new Set<string>();
+
+  for (const item of scored) {
+    if (selected.length >= maxFiles) break;
+    if (seenBuckets.has(item.bucket)) continue;
+
+    selected.push(item.file);
+    seenBuckets.add(item.bucket);
+  }
+
+  for (const item of scored) {
+    if (selected.length >= maxFiles) break;
+    if (!selected.includes(item.file)) {
+      selected.push(item.file);
+    }
+  }
+
+  return selected;
+}
+
+function scoreProjectFile(
+  file: string,
+  recentlyEditedPaths: string[],
+): number {
+  const normalized = file.replaceAll("\\", "/");
+  const parts = normalized.split("/");
+  const fileName = parts[parts.length - 1] ?? normalized;
+  const depth = parts.length;
+  const recentIndex = recentlyEditedPaths.lastIndexOf(normalized);
+
+  let score = 0;
+
+  // Recency is a signal, not the whole decision.
+  if (recentIndex >= 0) {
+    score += 20 + recentIndex;
+  }
+
+  // Prefer files that are often architectural or boundary-defining.
+  if (depth <= 2) {
+    score += 8;
+  }
+
+  if (/\/(src|app|server|packages|lib)\//.test(`/${normalized}`)) {
+    score += 6;
+  }
+
+  if (
+    /(index|route|router|controller|service|repo|repository|model|schema|config|client|server|handler|middleware)\./
+      .test(fileName)
+  ) {
+    score += 10;
+  }
+
+  // Tests can still matter, but they usually should not dominate project grading.
+  if (/\.(test|spec)\./.test(fileName)) {
+    score -= 4;
+  }
+
+  return score;
+}
+
+function getDirectoryBucket(file: string): string {
+  const normalized = file.replaceAll("\\", "/");
+  const parts = normalized.split("/");
+
+  if (parts.length <= 2) return normalized;
+  return parts.slice(0, 2).join("/");
 }
 
 function isReviewableFile(path: string): boolean {
@@ -177,36 +274,44 @@ function isReviewableFile(path: string): boolean {
     );
 }
 
-function buildReviewPrompt(
-  primaryFile: string,
-  contextFiles: string[],
+function buildProjectReviewPrompt(
+  changedFiles: string[],
+  reviewFiles: string[],
 ): string {
-  const referencedFiles = contextFiles.map((file) => `@${file}`).join(" ");
-  const secondaryFiles = contextFiles.filter((file) => file !== primaryFile);
+  const referencedFiles = reviewFiles.length === 0
+    ? "none"
+    : reviewFiles.map((file) => `@${file}`).join(" ");
 
-  const secondarySection = secondaryFiles.length === 0
-    ? "- No additional changed-file context."
-    : secondaryFiles.map((file) => `- @${file}`).join("\n");
+  const reviewFileList = reviewFiles.length === 0
+    ? "- None"
+    : reviewFiles.map((file) => `- @${file}`).join("\n");
+
+  const omittedFiles = changedFiles.filter((file) => !reviewFiles.includes(file));
+  const omittedFileList = omittedFiles.length === 0
+    ? "- None"
+    : omittedFiles.map((file) => `- ${file}`).join("\n");
 
   return [
-    "Perform a strict code-quality review of the changed code.",
+    "Perform a strict code-quality review of the current change set.",
     "",
-    `Primary file to grade: @${primaryFile}`,
+    `Total changed files detected: ${changedFiles.length}`,
     "",
-    contextFiles.length > 0
-      ? `Changed-file context: ${referencedFiles}`
-      : "Changed-file context: none",
+    reviewFiles.length > 0
+      ? `Referenced files for direct inspection: ${referencedFiles}`
+      : "Referenced files for direct inspection: none",
     "",
     "Review instructions:",
-    "- Be fairly critical.",
-    "- Focus primarily on the primary file, but use the other changed files as supporting context when relevant.",
-    "- Inspect the current diff for the primary file before grading.",
+    "- Grade the work heuristically at the project/change-set level, not as a review of one file.",
+    "- Inspect the current diff across the referenced files before grading.",
+    "- Use architecture, boundary design, data flow, consistency across files, and change-set shape to infer project quality.",
+    "- Do not anchor on the most recently edited file or any single file unless it is clearly the dominant risk.",
     "- Do not make code changes. Review only.",
     "- Do not be nice for the sake of being nice.",
     "- Treat B+ as the minimum acceptable bar.",
     "- Any category below B+ must be addressed.",
     "- Any overall grade below B+ must be addressed.",
-    "- Call out specific symbols, code paths, and complexity hot spots.",
+    "- Call out specific symbols, code paths, interface boundaries, and complexity hot spots.",
+    "- Flag change-set level issues such as duplicated logic across files, fractured ownership, inconsistent validation, mixed abstractions, and missing end-to-end flow coverage.",
     "- Flag memory-risk patterns such as whole-payload reads, unnecessary buffering, missing pagination/cursors, and avoidable O(n^2) scans.",
     "- Flag missing centralized validation for HTTP input, params, env, files, and parsed JSON.",
     "- Flag weak typing at boundaries: domain entities, config, external I/O, and errors.",
@@ -246,7 +351,10 @@ function buildReviewPrompt(
     "## Suggested next edits",
     "- <small, concrete changes>",
     "",
-    "Secondary changed files:",
-    secondarySection,
+    "Referenced changed files:",
+    reviewFileList,
+    "",
+    "Additional changed files not directly referenced:",
+    omittedFileList,
   ].join("\n");
 }

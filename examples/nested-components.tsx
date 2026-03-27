@@ -7,14 +7,8 @@
  * @module
  */
 
-import { Fragment, jsx } from "@ggpwnkthx/jsx";
-
-const write = (s: string) =>
-  Deno.stdout.writeSync(new Uint8Array([...s].map((c) => c.charCodeAt(0))));
-
-const print = (label: string, data: unknown) => {
-  write(`${label}\n${Deno.inspect(data, { colors: false, depth: Infinity })}\n`);
-};
+import { jsx } from "@ggpwnkthx/jsx";
+import { print } from "./shared.ts";
 
 interface Product {
   id: string;
@@ -24,76 +18,41 @@ interface Product {
 }
 
 function PriceTag({ price }: { price: number }) {
-  return jsx("span", { className: "price", children: [`$${price.toFixed(2)}`] }, null);
+  return <span className="price">${price.toFixed(2)}</span>;
 }
 
 function CategoryBadge({ category }: { category: string }) {
-  return jsx("span", {
-    className: `badge-${category.toLowerCase()}`,
-    children: [category],
-  }, null);
+  return <span className={`badge-${category.toLowerCase()}`}>{category}</span>;
 }
 
 function ProductCard({ product }: { product: Product }) {
-  return jsx(
-    "article",
-    {
-      className: "product-card",
-      "data-id": product.id,
-      children: [
-        jsx("h3", { key: "name", children: [product.name] }, null),
-        jsx(Fragment, {
-          key: "meta",
-          children: [
-            jsx(CategoryBadge, { category: product.category }, null),
-            jsx(PriceTag, { price: product.price }, null),
-          ],
-        }, null),
-      ],
-    },
-    null,
+  return (
+    <article className="product-card" data-id={product.id}>
+      <h3>{product.name}</h3>
+      <CategoryBadge category={product.category} />
+      <PriceTag price={product.price} />
+    </article>
   );
 }
 
 function ProductGrid({ products }: { products: Product[] }) {
   const categories = [...new Set(products.map((p) => p.category))];
 
-  return jsx(
-    "main",
-    {
-      children: [
-        jsx("h1", { key: "title", children: ["Products"] }, null),
-        jsx(Fragment, {
-          key: "by-category",
-          children: categories.map((cat) => {
-            const catProducts = products.filter((p) => p.category === cat);
-            return jsx(
-              "section",
-              {
-                key: cat,
-                className: "category-section",
-                children: [
-                  jsx("h2", { key: "cat-title", children: [cat] }, null),
-                  jsx(
-                    "div",
-                    {
-                      key: "grid",
-                      className: "product-grid",
-                      children: catProducts.map((p) =>
-                        jsx(ProductCard, { product: p, key: p.id }, null)
-                      ),
-                    },
-                    null,
-                  ),
-                ],
-              },
-              null,
-            );
-          }),
-        }, null),
-      ],
-    },
-    null,
+  return (
+    <main>
+      <h1>Products</h1>
+      {categories.map((cat) => {
+        const catProducts = products.filter((p) => p.category === cat);
+        return (
+          <section key={cat} className="category-section">
+            <h2>{cat}</h2>
+            <div className="product-grid">
+              {catProducts.map((p) => jsx(ProductCard, { product: p }, p.id))}
+            </div>
+          </section>
+        );
+      })}
+    </main>
   );
 }
 
@@ -105,5 +64,5 @@ const products: Product[] = [
   { id: "5", name: "Headphones", price: 149.99, category: "Electronics" },
 ];
 
-const vnode = jsx(ProductGrid, { products }, null);
+const vnode = <ProductGrid products={products} />;
 print("Nested Components VNode:", vnode);

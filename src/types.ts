@@ -102,9 +102,10 @@ export interface JsxDevSource {
 /**
  * Props type for intrinsic (built-in) elements.
  */
-export type JsxIntrinsicElementProps = Record<string, unknown> & {
+export interface JsxIntrinsicElementProps {
   children?: unknown;
-};
+  [key: string]: unknown;
+}
 
 /**
  * Declaration Merging target for intrinsic element props.

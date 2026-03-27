@@ -1,34 +1,28 @@
 /**
- * jsxDEV Example
+ * Runtime API: jsxDEV
  *
- * Demonstrates using jsxDEV for development mode, which includes
- * source location metadata for debugging.
- * Run with: deno run --allow-read examples/jsxdev-example.tsx
+ * Demonstrates using jsxDEV() for development mode, which includes
+ * source location metadata for debugging. This is the development-mode
+ * counterpart to jsx/jsxs.
+ * Run with: deno run --allow-read examples/runtime/jsxdev.ts
  *
  * @module
  */
 
 import { Fragment, jsxDEV } from "@ggpwnkthx/jsx";
+import { print } from "../shared.ts";
 
-const write = (s: string) =>
-  Deno.stdout.writeSync(new Uint8Array([...s].map((c) => c.charCodeAt(0))));
-
-const print = (label: string, data: unknown) => {
-  write(`${label}\n${Deno.inspect(data, { colors: false, depth: Infinity })}\n`);
-};
-
-function DevButton({ label, onClick }: { label: string; onClick: () => void }) {
+function DevButton({ label }: { label: string }) {
   return jsxDEV(
     "button",
     {
       className: "dev-button",
-      onClick,
       children: [label],
     },
     null,
     false,
     {
-      fileName: "file:///examples/jsxdev-example.tsx",
+      fileName: "file:///examples/runtime/jsxdev.ts",
       lineNumber: 14,
       columnNumber: 12,
     },
@@ -43,7 +37,7 @@ function DevInfoPanel({ title }: { title: string }) {
       className: "info-panel",
       children: [
         jsxDEV("h2", { key: "title", children: [title] }, null, false, {
-          fileName: "file:///examples/jsxdev-example.tsx",
+          fileName: "file:///examples/runtime/jsxdev.ts",
           lineNumber: 28,
           columnNumber: 8,
         }, undefined),
@@ -53,7 +47,7 @@ function DevInfoPanel({ title }: { title: string }) {
           null,
           false,
           {
-            fileName: "file:///examples/jsxdev-example.tsx",
+            fileName: "file:///examples/runtime/jsxdev.ts",
             lineNumber: 29,
             columnNumber: 8,
           },
@@ -65,7 +59,7 @@ function DevInfoPanel({ title }: { title: string }) {
           null,
           false,
           {
-            fileName: "file:///examples/jsxdev-example.tsx",
+            fileName: "file:///examples/runtime/jsxdev.ts",
             lineNumber: 30,
             columnNumber: 8,
           },
@@ -76,7 +70,7 @@ function DevInfoPanel({ title }: { title: string }) {
     "info-panel-key",
     true,
     {
-      fileName: "file:///examples/jsxdev-example.tsx",
+      fileName: "file:///examples/runtime/jsxdev.ts",
       lineNumber: 27,
       columnNumber: 5,
     },
@@ -94,7 +88,7 @@ const vnode = jsxDEV(
         null,
         false,
         {
-          fileName: "file:///examples/jsxdev-example.tsx",
+          fileName: "file:///examples/runtime/jsxdev.ts",
           lineNumber: 40,
           columnNumber: 5,
         },
@@ -105,19 +99,18 @@ const vnode = jsxDEV(
         {
           key: "btn1",
           label: "Click Me",
-          onClick: () => write("button clicked!\n"),
         },
         null,
         false,
         {
-          fileName: "file:///examples/jsxdev-example.tsx",
+          fileName: "file:///examples/runtime/jsxdev.ts",
           lineNumber: 41,
           columnNumber: 5,
         },
         undefined,
       ),
       jsxDEV(DevInfoPanel, { key: "panel", title: "Info" }, null, false, {
-        fileName: "file:///examples/jsxdev-example.tsx",
+        fileName: "file:///examples/runtime/jsxdev.ts",
         lineNumber: 42,
         columnNumber: 5,
       }, undefined),
@@ -125,7 +118,7 @@ const vnode = jsxDEV(
   },
   null,
   true,
-  { fileName: "file:///examples/jsxdev-example.tsx", lineNumber: 39, columnNumber: 1 },
+  { fileName: "file:///examples/runtime/jsxdev.ts", lineNumber: 39, columnNumber: 1 },
   undefined,
 );
 

@@ -1,91 +1,61 @@
 /**
  * Child Normalization Example
  *
- * Demonstrates how different child types are normalized:
+ * Demonstrates how different child types are handled in JSX:
  * - strings/numbers become text VNodes
  * - null, undefined, booleans are filtered out
  * - arrays are flattened recursively
- * - nested JSX is evaluated
  * Run with: deno run --allow-read examples/children.tsx
  *
  * @module
  */
 
-import { Fragment, jsx } from "@ggpwnkthx/jsx";
-
-const write = (s: string) =>
-  Deno.stdout.writeSync(new Uint8Array([...s].map((c) => c.charCodeAt(0))));
-
-const print = (label: string, data: unknown) => {
-  write(`${label}\n${Deno.inspect(data, { colors: false, depth: Infinity })}\n`);
-};
+import { print } from "./shared.ts";
 
 function Show({ condition, children }: { condition: boolean; children: unknown }) {
-  return condition ? jsx(Fragment, { children: [children] }, null) : null;
+  return condition ? <>{children}</> : null;
 }
 
 function List({ items }: { items: string[] }) {
-  return jsx(
-    "ul",
-    {
-      children: items.map((item, i) => jsx("li", { key: i, children: [item] }, null)),
-    },
-    null,
+  return (
+    <ul>
+      {items.map((item, i) => <li key={i}>{item}</li>)}
+    </ul>
   );
 }
 
 function MixedChildren() {
-  return jsx(
-    "div",
-    {
-      children: [
-        "Plain string",
-        42,
-        null,
-        undefined,
-        true,
-        false,
-        ["nested array", "items"],
-        jsx("strong", { children: ["JSX element"] }, null),
-        jsx(Fragment, { children: ["Fragment children"] }, null),
-      ],
-    },
-    null,
+  return (
+    <div>
+      Plain string
+      {42}
+      {null}
+      {undefined}
+      {true}
+      {false}
+      {["nested array", "items"]}
+      <strong>JSX element</strong>
+      Fragment children
+    </div>
   );
 }
 
 function ConditionalRendering() {
   const user = { name: "Alice", active: true, admin: false };
-  return jsx(
-    "section",
-    {
-      children: [
-        jsx("h1", { key: "name", children: [user.name] }, null),
-        jsx(
-          Show,
-          { key: "status", condition: user.active, children: "User is active" },
-          null,
-        ),
-        jsx(
-          Show,
-          { key: "admin-badge", condition: user.admin, children: "Admin" },
-          null,
-        ),
-        jsx(Show, {
-          key: "offline",
-          condition: !user.active,
-          children: "User is offline",
-        }, null),
-      ],
-    },
-    null,
+  return (
+    <section>
+      <h1>{user.name}</h1>
+      <Show condition={user.active}>User is active</Show>
+      <Show condition={user.admin}>Admin</Show>
+      <Show condition={!user.active}>User is offline</Show>
+    </section>
   );
 }
 
-const mixedVnode = jsx(MixedChildren, null, null);
-const conditionalVnode = jsx(ConditionalRendering, null, null);
-const listVnode = jsx(List, { items: ["Apple", "Banana", "Cherry"] }, null);
+const mixedVnode = <MixedChildren />;
+const conditionalVnode = <ConditionalRendering />;
+const listVnode = <List items={["Apple", "Banana", "Cherry"]} />;
 
-print("Mixed Children (notice null/boolean filtering):", mixedVnode);
+print("Mixed Children (null/boolean filtering):", mixedVnode);
 print("Conditional Rendering:", conditionalVnode);
 print("List Items:", listVnode);

@@ -4,8 +4,16 @@
  */
 
 import { createJSXVNode } from "./normalize.ts";
-import type { ComponentType, Key, VNode } from "./types.ts";
+import type { ComponentType, JsxIntrinsicElementProps, Key, VNode } from "./types.ts";
 import { Fragment } from "./types.ts";
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      [K: string]: JsxIntrinsicElementProps;
+    }
+  }
+}
 
 export { Fragment };
 

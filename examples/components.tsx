@@ -8,17 +8,11 @@
  * @module
  */
 
-import { Fragment, jsx } from "@ggpwnkthx/jsx";
-
-const write = (s: string) =>
-  Deno.stdout.writeSync(new Uint8Array([...s].map((c) => c.charCodeAt(0))));
-
-const print = (label: string, data: unknown) => {
-  write(`${label}\n${Deno.inspect(data, { colors: false, depth: Infinity })}\n`);
-};
+import { jsx } from "@ggpwnkthx/jsx";
+import { print } from "./shared.ts";
 
 function Avatar({ src, alt }: { src: string; alt: string }) {
-  return jsx("img", { src, alt, className: "avatar" }, null);
+  return <img src={src} alt={alt} className="avatar" />;
 }
 
 function UserCard({
@@ -30,56 +24,44 @@ function UserCard({
   role: string;
   avatar: string;
 }) {
-  return jsx(
-    "div",
-    {
-      className: "user-card",
-      children: [
-        jsx(Avatar, { src: avatar, alt: name, key: "avatar" }, null),
-        jsx("div", {
-          className: "user-info",
-          children: [
-            jsx("h2", { key: "name", children: [name] }, null),
-            jsx("span", { key: "role", children: [role] }, null),
-          ],
-        }, null),
-      ],
-    },
-    null,
+  return (
+    <div className="user-card">
+      <Avatar src={avatar} alt={name} />
+      <div className="user-info">
+        <h2>{name}</h2>
+        <span>{role}</span>
+      </div>
+    </div>
   );
 }
 
 function Badge({ children }: { children: string }) {
-  return jsx("span", { className: "badge", children }, null);
+  return <span className="badge">{children}</span>;
 }
 
-function TeamSection(
-  { members }: { members: Array<{ name: string; role: string; avatar: string }> },
-) {
-  return jsx(
-    "section",
-    {
-      className: "team",
-      children: [
-        jsx("h2", { key: "title", children: ["Our Team"] }, null),
-        jsx(Fragment, {
-          key: "members",
-          children: members.map((m, i) =>
-            jsx(UserCard, { ...m, key: String(i) }, null)
-          ),
-        }, null),
-        jsx(Badge, { key: "badge", children: "3 members" }, null),
-      ],
-    },
-    null,
+interface Member {
+  name: string;
+  role: string;
+  avatar: string;
+}
+
+function TeamSection({ members }: { members: Member[] }) {
+  return (
+    <section className="team">
+      <h2>Our Team</h2>
+      {members.map((m) =>
+        jsx(UserCard, { name: m.name, role: m.role, avatar: m.avatar }, m.name)
+      )}
+      <Badge>3 members</Badge>
+    </section>
   );
 }
 
-const team = [
+const team: Member[] = [
   { name: "Alice", role: "Engineer", avatar: "/alice.png" },
   { name: "Bob", role: "Designer", avatar: "/bob.png" },
   { name: "Carol", role: "Manager", avatar: "/carol.png" },
 ];
 
-const vnode = jsx(TeamSection, { members: team }, null);
+const vnode = <TeamSection members={team} />;
 print("Components VNode:", vnode);

@@ -7,8 +7,6 @@
  * @module
  */
 
-import { jsx } from "@ggpwnkthx/jsx";
-
 const write = (s: string) =>
   Deno.stdout.writeSync(new Uint8Array([...s].map((c) => c.charCodeAt(0))));
 
@@ -17,22 +15,18 @@ const print = (label: string, data: unknown) => {
 };
 
 function Greeting({ name }: { name: string }) {
-  return jsx("div", { children: [`Hello, ${name}!`] }, null);
+  return <div>Hello, {name}!</div>;
 }
 
 function App() {
-  return jsx(
-    "main",
-    {
-      children: [
-        jsx("h1", { children: ["Welcome"] }, null),
-        jsx(Greeting, { name: "Deno" }, null),
-        jsx(Greeting, { name: "World" }, null),
-      ],
-    },
-    null,
+  return (
+    <main>
+      <h1>Welcome</h1>
+      <Greeting name="Deno" />
+      <Greeting name="World" />
+    </main>
   );
 }
 
-const vnode = jsx(App, null, null);
+const vnode = <App />;
 print("Basic VNode:", vnode);

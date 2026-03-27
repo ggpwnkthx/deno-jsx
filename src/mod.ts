@@ -33,7 +33,6 @@ export {
   Fragment,
   type FragmentVNode,
   type JsxIntrinsicElementProps,
-  type JsxIntrinsicElements,
   type Key,
   type Normalizable,
   type TextVNode,

@@ -1,76 +1,46 @@
 /**
  * Fragments Example
  *
- * Demonstrates Fragment usage and keyless vs keyed fragment behavior.
- * - Keyless fragments are flattened into parent children
- * - Keyed fragments are preserved as wrappers
+ * Demonstrates Fragment usage in TSX syntax.
+ * - Keyless fragments (<>...</>) are useful for grouping multiple elements
+ * - Keyed fragments preserve wrapper structure
  * Run with: deno run --allow-read examples/fragments.tsx
  *
  * @module
  */
 
 import { createFragment, Fragment, jsx } from "@ggpwnkthx/jsx";
-
-const write = (s: string) =>
-  Deno.stdout.writeSync(new Uint8Array([...s].map((c) => c.charCodeAt(0))));
-
-const print = (label: string, data: unknown) => {
-  write(`${label}\n${Deno.inspect(data, { colors: false, depth: Infinity })}\n`);
-};
-
-function KeylessFragmentDemo() {
-  return jsx(
-    "div",
-    {
-      children: [
-        jsx(Fragment, { children: ["First ", "Second ", "Third"] }, null),
-      ],
-    },
-    null,
-  );
-}
+import { print } from "./shared.ts";
 
 function KeyedFragmentDemo() {
-  return jsx(
-    "div",
-    {
-      children: [
-        jsx(Fragment, { children: ["Keyed First", "Keyed Second"] }, "my-key"),
-      ],
-    },
-    null,
+  return (
+    <div>
+      {jsx(Fragment, { children: ["Keyed First", "Keyed Second"] }, "my-key")}
+    </div>
   );
 }
 
 function TableRow({ cells }: { cells: string[] }) {
-  return jsx(
-    "tr",
-    {
-      children: [
-        jsx(Fragment, {
-          children: cells.map((c, i) => jsx("td", { key: i, children: [c] }, null)),
-        }, null),
-      ],
-    },
-    null,
+  return (
+    <tr>
+      {cells.map((c, i) => <td key={i}>{c}</td>)}
+    </tr>
   );
 }
 
 function UsingCreateFragment() {
   const frag = createFragment([
-    jsx("span", { key: "1", children: ["A"] }, null),
-    jsx("span", { key: "2", children: ["B"] }, null),
-    jsx("span", { key: "3", children: ["C"] }, null),
+    <span key="1">A</span>,
+    <span key="2">B</span>,
+    <span key="3">C</span>,
   ]);
-  return jsx("div", { children: [frag] }, null);
+  return <div>{frag}</div>;
 }
 
-const keylessVnode = jsx(KeylessFragmentDemo, null, null);
-const keyedVnode = jsx(KeyedFragmentDemo, null, null);
-const tableRowVnode = jsx(TableRow, { cells: ["Cell 1", "Cell 2", "Cell 3"] }, null);
-const createFragVnode = jsx(UsingCreateFragment, null, null);
+const keyedVnode = <KeyedFragmentDemo />;
+const tableRowVnode = <TableRow cells={["Cell 1", "Cell 2", "Cell 3"]} />;
+const createFragVnode = <UsingCreateFragment />;
 
-print("Keyless Fragment (flattened):", keylessVnode);
 print("Keyed Fragment (preserved):", keyedVnode);
-print("Table Row with Fragment:", tableRowVnode);
+print("Table Row with map:", tableRowVnode);
 print("createFragment helper:", createFragVnode);
