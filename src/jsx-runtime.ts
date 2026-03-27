@@ -22,7 +22,7 @@ export type {
 
 /**
  * Fragment type marker and factory.
- * @internal
+ * Used as a JSX tag to group multiple elements without adding DOM nodes.
  */
 export { Fragment };
 

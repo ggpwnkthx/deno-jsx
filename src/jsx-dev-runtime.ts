@@ -11,12 +11,12 @@ import type { JsxKey, JsxProps, JsxRenderable } from "./jsx-types.ts";
 
 /**
  * Fragment type marker and factory.
- * @internal
+ * Used as a JSX tag to group multiple elements without adding DOM nodes.
  */
 export { Fragment };
 
 /**
- * @internal
+ * Source location information for debugging JSX.
  */
 export type { JsxDevSource };
 
